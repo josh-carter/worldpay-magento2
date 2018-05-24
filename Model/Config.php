@@ -1,6 +1,8 @@
 <?php
 namespace Worldpay\Payments\Model;
 
+use Magento\Framework\Serialize\Serializer\Json as Serialize;
+
 class Config
 {
     /**
@@ -9,15 +11,22 @@ class Config
     protected $_scopeConfigInterface;
     protected $customerSession;
 
+    /**
+     * @var Serialize
+     */
+    private $serialize;
+
     public function __construct(
     \Magento\Framework\App\Config\ScopeConfigInterface $configInterface,
     \Magento\Customer\Model\Session $customerSession,
-    \Magento\Backend\Model\Session\Quote $sessionQuote
+    \Magento\Backend\Model\Session\Quote $sessionQuote,
+    Serialize $serialize
     )
     {
         $this->_scopeConfigInterface = $configInterface;
         $this->customerSession = $customerSession;
         $this->sessionQuote = $sessionQuote;
+        $this->serialize = $serialize;
     }
 
     public function isLiveMode() {
@@ -77,7 +86,7 @@ class Config
     public function getSitecodes() {
         $sitecodeConfig = $this->_scopeConfigInterface->getValue('payment/worldpay_payments_card/sitecodes');
         if ($sitecodeConfig) {
-            $siteCodes = unserialize($sitecodeConfig);
+            $siteCodes = $this->serialize->unserialize($sitecodeConfig);
             if (is_array($siteCodes)) {
                 return $siteCodes;
             }
